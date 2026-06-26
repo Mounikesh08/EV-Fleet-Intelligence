@@ -1,0 +1,37 @@
+﻿# Python cache
+__pycache__/
+*.py[cod]
+*.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Environment files
+.env
+
+# Local generated data
+data/*.csv
+
+# Trained model artifacts
+models/*.joblib
+models/*.json
+
+# MLflow local tracking
+mlruns/
+mlflow.db
+
+# Streamlit local config
+.streamlit/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
