@@ -8,7 +8,7 @@ import requests
 import streamlit as st
 
 
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000").rstrip("/")
 
 BATTERY_DATA_PATH = "data/battery_features.csv"
 FSD_DATA_PATH = "data/fsd_features.csv"
@@ -321,7 +321,9 @@ if health:
     st.sidebar.caption(f"Service: {health.get('service', 'EV Fleet Intelligence Platform')}")
 else:
     st.sidebar.error("FastAPI offline")
-    st.sidebar.caption("Run: uvicorn app.api.main:app --reload")
+    else:
+    st.sidebar.error("FastAPI offline")
+    st.sidebar.caption("Check API_URL environment variable or backend service status.")
 
 st.sidebar.markdown("---")
 st.sidebar.caption(f"API URL: {API_URL}")
