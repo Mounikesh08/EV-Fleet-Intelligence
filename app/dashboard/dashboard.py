@@ -321,9 +321,7 @@ if health:
     st.sidebar.caption(f"Service: {health.get('service', 'EV Fleet Intelligence Platform')}")
 else:
     st.sidebar.error("FastAPI offline")
-    else:
-    st.sidebar.error("FastAPI offline")
-    st.sidebar.caption("Check API_URL environment variable or backend service status.")
+    st.sidebar.caption("Run: uvicorn app.api.main:app --reload")
 
 st.sidebar.markdown("---")
 st.sidebar.caption(f"API URL: {API_URL}")
