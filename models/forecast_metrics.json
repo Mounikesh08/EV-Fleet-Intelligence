@@ -1,0 +1,45 @@
+{
+    "model_type": "RandomForestRegressor",
+    "trained_at": "2026-06-25T23:19:23.728627+00:00",
+    "features": [
+        "voltage",
+        "current",
+        "temperature",
+        "soc",
+        "capacity",
+        "cycle_count",
+        "impedance",
+        "delta_voltage",
+        "rolling_mean_temp_10",
+        "rolling_max_temp_10",
+        "rolling_std_current_10",
+        "soc_change",
+        "capacity_fade_rate",
+        "impedance_rise",
+        "temperature_risk_score",
+        "impedance_risk_score",
+        "soh_drop_from_new"
+    ],
+    "targets": [
+        "soh_1d_ahead",
+        "soh_3d_ahead",
+        "soh_7d_ahead"
+    ],
+    "metrics": {
+        "soh_1d_ahead": {
+            "mae": 0.0007298182030546061,
+            "rmse": 0.0018977507690168957,
+            "r2_score": 0.7959237133379921
+        },
+        "soh_3d_ahead": {
+            "mae": 0.001152525197925066,
+            "rmse": 0.002892324008035387,
+            "r2_score": 0.6584514875668213
+        },
+        "soh_7d_ahead": {
+            "mae": 0.00203699909328369,
+            "rmse": 0.004312925905694593,
+            "r2_score": 0.5414352126958374
+        }
+    }
+}

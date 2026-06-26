@@ -1,0 +1,64 @@
+{
+    "model_type": "IsolationForest",
+    "trained_at": "2026-06-25T23:16:13.436183+00:00",
+    "features": [
+        "voltage",
+        "current",
+        "temperature",
+        "soc",
+        "capacity",
+        "cycle_count",
+        "impedance",
+        "soh",
+        "delta_voltage",
+        "rolling_mean_temp_10",
+        "rolling_max_temp_10",
+        "rolling_std_current_10",
+        "soc_change",
+        "capacity_fade_rate",
+        "impedance_rise",
+        "temperature_risk_score",
+        "impedance_risk_score",
+        "soh_drop_from_new"
+    ],
+    "precision": 0.9975186104218362,
+    "recall": 1.0,
+    "f1_score": 0.9987577639751553,
+    "confusion_matrix": [
+        [
+            5357,
+            1
+        ],
+        [
+            0,
+            402
+        ]
+    ],
+    "classification_report": {
+        "0": {
+            "precision": 1.0,
+            "recall": 0.9998133631952221,
+            "f1-score": 0.9999066728884741,
+            "support": 5358.0
+        },
+        "1": {
+            "precision": 0.9975186104218362,
+            "recall": 1.0,
+            "f1-score": 0.9987577639751553,
+            "support": 402.0
+        },
+        "accuracy": 0.9998263888888889,
+        "macro avg": {
+            "precision": 0.998759305210918,
+            "recall": 0.999906681597611,
+            "f1-score": 0.9993322184318147,
+            "support": 5760.0
+        },
+        "weighted avg": {
+            "precision": 0.9998268196856906,
+            "recall": 0.9998263888888889,
+            "f1-score": 0.9998264886205654,
+            "support": 5760.0
+        }
+    }
+}

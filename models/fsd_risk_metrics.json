@@ -1,0 +1,84 @@
+{
+    "model_type": "RandomForestClassifier",
+    "trained_at": "2026-06-25T23:59:46.922817+00:00",
+    "features": [
+        "speed",
+        "lead_vehicle_distance",
+        "relative_speed",
+        "lane_offset",
+        "steering_angle",
+        "brake_pressure",
+        "object_count",
+        "pedestrian_count",
+        "autopilot_engaged",
+        "time_gap",
+        "closing_risk",
+        "lane_departure_risk",
+        "hard_brake_risk",
+        "crowded_scene_risk",
+        "low_visibility_flag",
+        "red_light_flag",
+        "urban_flag",
+        "highway_flag"
+    ],
+    "precision": 0.8821548821548821,
+    "recall": 0.880672268907563,
+    "f1_score": 0.8814129520605551,
+    "confusion_matrix": [
+        [
+            4335,
+            70
+        ],
+        [
+            71,
+            524
+        ]
+    ],
+    "classification_report": {
+        "0": {
+            "precision": 0.9838856105310939,
+            "recall": 0.9841089670828603,
+            "f1-score": 0.9839972761321076,
+            "support": 4405.0
+        },
+        "1": {
+            "precision": 0.8821548821548821,
+            "recall": 0.880672268907563,
+            "f1-score": 0.8814129520605551,
+            "support": 595.0
+        },
+        "accuracy": 0.9718,
+        "macro avg": {
+            "precision": 0.933020246342988,
+            "recall": 0.9323906179952117,
+            "f1-score": 0.9327051140963314,
+            "support": 5000.0
+        },
+        "weighted avg": {
+            "precision": 0.9717796538543247,
+            "recall": 0.9718,
+            "f1-score": 0.9717897415675929,
+            "support": 5000.0
+        }
+    },
+    "feature_importance": {
+        "brake_pressure": 0.17190291438463412,
+        "lane_offset": 0.15525322291168858,
+        "hard_brake_risk": 0.14353848325965057,
+        "lane_departure_risk": 0.1188867694751006,
+        "red_light_flag": 0.09904240605601605,
+        "lead_vehicle_distance": 0.04984126312107477,
+        "object_count": 0.043358403829469455,
+        "steering_angle": 0.04209088650131261,
+        "time_gap": 0.041340409463719134,
+        "speed": 0.0402308610522131,
+        "crowded_scene_risk": 0.03445373247254548,
+        "relative_speed": 0.02022723164281641,
+        "closing_risk": 0.014788219003795873,
+        "low_visibility_flag": 0.012040409262786602,
+        "pedestrian_count": 0.010680666906228816,
+        "highway_flag": 0.00085564683834441,
+        "urban_flag": 0.000827523887945881,
+        "autopilot_engaged": 0.0006409499306574655
+    }
+}
