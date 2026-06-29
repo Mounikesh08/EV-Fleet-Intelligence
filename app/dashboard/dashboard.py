@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+import json
+from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
@@ -12,6 +14,9 @@ API_URL = os.getenv("API_URL", "http://127.0.0.1:8000").rstrip("/")
 
 BATTERY_DATA_PATH = "data/battery_features.csv"
 FSD_DATA_PATH = "data/fsd_features.csv"
+
+LSTM_METRICS_PATH = Path("models/lstm_autoencoder_metrics.json")
+NBEATS_METRICS_PATH = Path("models/nbeats_soh_metrics.json")
 
 
 st.set_page_config(
@@ -214,6 +219,18 @@ def safe_load_fsd_data():
         st.stop()
 
 
+def load_json_metrics(path: Path):
+    if not path.exists():
+        return None
+
+    try:
+        with open(path, "r") as file:
+            return json.load(file)
+    except Exception as exc:
+        st.warning(f"Could not load metrics file: {path}. Error: {exc}")
+        return None
+
+
 # -----------------------------
 # Helper Components
 # -----------------------------
@@ -230,6 +247,7 @@ def hero():
             <span class="module-pill">FSD Scenario Intelligence</span>
             <span class="module-pill">FastAPI + MLflow + Streamlit</span>
             <span class="module-pill">Tesla-style Fleet Analytics</span>
+            <span class="module-pill">Phase 2 NASA + PyTorch</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -293,6 +311,266 @@ def plot_dark_layout(fig):
     return fig
 
 
+def format_float(value, digits=4):
+    try:
+        if value is None:
+            return "N/A"
+        return f"{float(value):.{digits}f}"
+    except Exception:
+        return "N/A"
+
+
+def render_phase2_nasa_pytorch_metrics():
+    st.header("Phase 2: NASA + PyTorch Battery Intelligence")
+
+    st.write(
+        """
+        This page summarizes the advanced Phase 2 upgrade branch. Phase 2 moves the battery
+        intelligence system from synthetic scikit-learn modeling into real NASA battery degradation
+        data with PyTorch-based temporal modeling.
+        """
+    )
+
+    lstm_metrics = load_json_metrics(LSTM_METRICS_PATH)
+    nbeats_metrics = load_json_metrics(NBEATS_METRICS_PATH)
+
+    if lstm_metrics is None and nbeats_metrics is None:
+        st.warning(
+            "Phase 2 metrics files were not found locally. Run the Phase 2 training scripts first."
+        )
+
+        st.code(
+            """
+# Prepare NASA battery data
+python app/nasa/prepare_nasa_battery_data.py
+
+# Train PyTorch LSTM Autoencoder
+python app/ml_pytorch/train_lstm_autoencoder.py
+
+# Train N-BEATS SOH forecaster
+python app/ml_pytorch/train_nbeats_forecaster.py
+
+# Print clean Phase 2 metrics
+python scripts/show_phase2_metrics.py
+            """,
+            language="powershell",
+        )
+
+        st.info(
+            "This is expected on Render if Phase 2 model artifacts are not deployed. "
+            "Phase 2 is currently designed as an advanced local/GitHub branch workflow."
+        )
+        return
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.subheader("NASA Dataset Preprocessing Summary")
+
+    st.write(
+        """
+        Phase 2 uses NASA battery degradation data instead of only synthetic telemetry.
+        The preprocessing pipeline reads NASA `.mat` files and creates:
+        """
+    )
+
+    st.code(
+        """
+data/nasa_processed/nasa_battery_discharge_timeseries.csv
+data/nasa_processed/nasa_battery_cycles.csv
+        """,
+        language="text",
+    )
+
+    st.write(
+        """
+        The discharge time-series file is used for LSTM Autoencoder sequence modeling.
+        The cycle-level file is used for N-BEATS State-of-Health forecasting.
+        """
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if lstm_metrics is not None:
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
+        st.subheader("PyTorch LSTM Autoencoder — NASA Battery Anomaly Detection")
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            metric_card(
+                "Precision",
+                format_float(lstm_metrics.get("precision"), 4),
+                "Correctness of anomaly flags",
+            )
+        with col2:
+            metric_card(
+                "Recall",
+                format_float(lstm_metrics.get("recall"), 4),
+                "Anomalies captured",
+            )
+        with col3:
+            metric_card(
+                "F1 Score",
+                format_float(lstm_metrics.get("f1_score"), 4),
+                "Balanced detection score",
+            )
+        with col4:
+            metric_card(
+                "Threshold",
+                format_float(lstm_metrics.get("threshold"), 6),
+                "Reconstruction-error cutoff",
+            )
+
+        threshold_percentile = lstm_metrics.get("threshold_percentile", "N/A")
+        st.info(f"Best threshold percentile selected during tuning: {threshold_percentile}")
+
+        st.write(
+            """
+            The LSTM Autoencoder learns normal NASA battery discharge behavior.
+            When reconstruction error is high, the sequence is treated as anomalous.
+            The threshold was tuned to improve the balance between precision and recall.
+            """
+        )
+
+        confusion_matrix = lstm_metrics.get("confusion_matrix")
+
+        if confusion_matrix:
+            cm_df = pd.DataFrame(
+                confusion_matrix,
+                index=["Actual Normal", "Actual Anomaly"],
+                columns=["Predicted Normal", "Predicted Anomaly"],
+            )
+
+            st.write("Confusion Matrix")
+            st.dataframe(cm_df, use_container_width=True)
+
+            cm_plot_df = cm_df.reset_index().melt(
+                id_vars="index",
+                var_name="Prediction",
+                value_name="Count",
+            )
+            cm_plot_df = cm_plot_df.rename(columns={"index": "Actual"})
+
+            fig_cm = px.bar(
+                cm_plot_df,
+                x="Actual",
+                y="Count",
+                color="Prediction",
+                barmode="group",
+                title="LSTM Autoencoder Confusion Matrix",
+            )
+            fig_cm = plot_dark_layout(fig_cm)
+            st.plotly_chart(fig_cm, use_container_width=True)
+
+        feature_cols = lstm_metrics.get("features", [])
+        if feature_cols:
+            st.write("LSTM Input Features")
+            st.code(", ".join(feature_cols), language="text")
+
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.warning("LSTM Autoencoder metrics file not found: models/lstm_autoencoder_metrics.json")
+
+    if nbeats_metrics is not None:
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
+        st.subheader("N-BEATS / neuralforecast — NASA SOH Forecasting")
+
+        overall = nbeats_metrics.get("overall_metrics", {})
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            metric_card(
+                "Overall MAE",
+                format_float(overall.get("mae"), 6),
+                "Average absolute forecast error",
+            )
+        with col2:
+            metric_card(
+                "Overall RMSE",
+                format_float(overall.get("rmse"), 6),
+                "Forecast error magnitude",
+            )
+        with col3:
+            metric_card(
+                "Overall R²",
+                format_float(overall.get("r2_score"), 4),
+                "Explained SOH variance",
+            )
+
+        st.write(
+            """
+            The N-BEATS model forecasts battery State-of-Health over future battery cycles.
+            Error naturally increases as the forecast horizon becomes longer.
+            """
+        )
+
+        horizon_metrics = nbeats_metrics.get("horizon_metrics", {})
+
+        if horizon_metrics:
+            rows = []
+            for horizon, values in horizon_metrics.items():
+                rows.append(
+                    {
+                        "Horizon": horizon,
+                        "MAE": values.get("mae"),
+                        "RMSE": values.get("rmse"),
+                        "R2": values.get("r2_score"),
+                    }
+                )
+
+            horizon_df = pd.DataFrame(rows)
+
+            st.write("Forecast Horizon Metrics")
+            st.dataframe(horizon_df, use_container_width=True)
+
+            fig_horizon = px.bar(
+                horizon_df,
+                x="Horizon",
+                y=["MAE", "RMSE"],
+                barmode="group",
+                title="N-BEATS SOH Forecast Error by Horizon",
+            )
+            fig_horizon = plot_dark_layout(fig_horizon)
+            st.plotly_chart(fig_horizon, use_container_width=True)
+
+            if "R2" in horizon_df.columns:
+                fig_r2 = px.line(
+                    horizon_df,
+                    x="Horizon",
+                    y="R2",
+                    markers=True,
+                    title="N-BEATS R² by Forecast Horizon",
+                )
+                fig_r2 = plot_dark_layout(fig_r2)
+                st.plotly_chart(fig_r2, use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.warning("N-BEATS metrics file not found: models/nbeats_soh_metrics.json")
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.subheader("Phase 2 Engineering Summary")
+
+    st.success(
+        "Phase 2 demonstrates the transition from a synthetic scikit-learn demo "
+        "to a real-data PyTorch battery intelligence system."
+    )
+
+    st.write(
+        """
+        Key upgrades completed:
+        - NASA Battery Dataset preprocessing
+        - Real discharge-cycle time-series extraction
+        - PyTorch LSTM Autoencoder anomaly detection
+        - Reconstruction-error threshold tuning
+        - N-BEATS SOH forecasting with neuralforecast
+        - MLflow experiment tracking
+        - Streamlit visibility for Phase 2 metrics
+        """
+    )
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
 # -----------------------------
 # Sidebar
 # -----------------------------
@@ -308,6 +586,7 @@ page = st.sidebar.radio(
         "FSD Scenario Intelligence",
         "Live API Demo",
         "Model Operations",
+        "Phase 2 NASA/PyTorch Metrics",
     ],
 )
 
@@ -321,7 +600,7 @@ if health:
     st.sidebar.caption(f"Service: {health.get('service', 'EV Fleet Intelligence Platform')}")
 else:
     st.sidebar.error("FastAPI offline")
-    st.sidebar.caption("Run: uvicorn app.api.main:app --reload")
+    st.sidebar.caption("Check API_URL environment variable or backend service status.")
 
 st.sidebar.markdown("---")
 st.sidebar.caption(f"API URL: {API_URL}")
@@ -846,6 +1125,8 @@ elif page == "Model Operations":
         "Battery Anomaly Metrics": "models/anomaly_metrics.json",
         "SOH Forecast Metrics": "models/forecast_metrics.json",
         "FSD Risk Metrics": "models/fsd_risk_metrics.json",
+        "Phase 2 LSTM Metrics": "models/lstm_autoencoder_metrics.json",
+        "Phase 2 N-BEATS Metrics": "models/nbeats_soh_metrics.json",
         "MLflow SQLite DB": "mlflow.db",
     }
 
@@ -879,17 +1160,17 @@ elif page == "Model Operations":
 
     st.code(
         """
-# Generate battery data
+# Generate synthetic battery data
 python scripts/generate_battery_data.py
 
-# Build battery features
+# Build synthetic battery features
 python app/features/battery_features.py
 
-# Train battery models
+# Train deployed demo battery models
 python app/ml/train_anomaly_model.py
 python app/ml/train_forecast_model.py
 
-# Generate FSD data
+# Generate synthetic FSD data
 python scripts/generate_fsd_data.py
 
 # Build FSD features
@@ -897,6 +1178,18 @@ python app/features/fsd_features.py
 
 # Train FSD model
 python app/ml/train_fsd_risk_model.py
+
+# Phase 2 NASA preprocessing
+python app/nasa/prepare_nasa_battery_data.py
+
+# Phase 2 PyTorch LSTM Autoencoder
+python app/ml_pytorch/train_lstm_autoencoder.py
+
+# Phase 2 N-BEATS SOH forecasting
+python app/ml_pytorch/train_nbeats_forecaster.py
+
+# Show Phase 2 metrics
+python scripts/show_phase2_metrics.py
 
 # Run API
 uvicorn app.api.main:app --reload
@@ -909,6 +1202,10 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db
         """,
         language="bash",
     )
+
+
+elif page == "Phase 2 NASA/PyTorch Metrics":
+    render_phase2_nasa_pytorch_metrics()
 
 
 st.markdown(
