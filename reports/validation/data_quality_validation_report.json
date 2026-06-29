@@ -1,0 +1,473 @@
+{
+    "generated_at": "2026-06-29T19:23:58.925830+00:00",
+    "tool": "Great Expectations-style data quality validation",
+    "note": "This script implements explicit expectation checks for the project datasets. It is designed to mirror production data-quality validation before model training.",
+    "summary": {
+        "total_checks": 42,
+        "passed_checks": 41,
+        "failed_checks": 1,
+        "pass_rate": 97.62
+    },
+    "results": [
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "required_columns",
+            "passed": true,
+            "details": {
+                "missing_columns": [],
+                "required_columns": [
+                    "battery_id",
+                    "cycle_index",
+                    "capacity",
+                    "ambient_temperature",
+                    "voltage_mean",
+                    "voltage_min",
+                    "voltage_max",
+                    "current_mean",
+                    "temperature_mean",
+                    "temperature_max",
+                    "discharge_duration",
+                    "sample_count",
+                    "initial_capacity",
+                    "soh",
+                    "capacity_fade",
+                    "voltage_drop",
+                    "temperature_rise",
+                    "is_low_soh"
+                ]
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "battery_id_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 636
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "cycle_index_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 636
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "capacity_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 636
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "soh_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 636
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "soh_between_0.0_and_1.2",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 0.5668928519254556,
+                "max_observed": 1.0
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "capacity_between_0.0_and_3.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 1.15381833159625,
+                "max_observed": 2.035337591005598
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "voltage_min_between_0.0_and_5.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 1.7370300333706354,
+                "max_observed": 2.699983457940659
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "voltage_max_between_0.0_and_5.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 4.1575524997258,
+                "max_observed": 4.233325435700087
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "temperature_mean_between_0.0_and_80.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 30.10270376338569,
+                "max_observed": 34.490493589415046
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "temperature_max_between_0.0_and_100.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 36.372087786130464,
+                "max_observed": 42.33252236723314
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "sample_count_between_1_and_10000",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 179.0,
+                "max_observed": 371.0
+            }
+        },
+        {
+            "dataset": "NASA Battery Cycles",
+            "check": "is_low_soh_allowed_values",
+            "passed": true,
+            "details": {
+                "allowed_values": [
+                    0,
+                    1
+                ],
+                "invalid_values": []
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "required_columns",
+            "passed": true,
+            "details": {
+                "missing_columns": [],
+                "required_columns": [
+                    "battery_id",
+                    "cycle_index",
+                    "sample_index",
+                    "cycle_type",
+                    "ambient_temperature",
+                    "time_seconds",
+                    "voltage_measured",
+                    "current_measured",
+                    "temperature_measured",
+                    "current_load",
+                    "voltage_load",
+                    "capacity"
+                ]
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "battery_id_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "cycle_index_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "sample_index_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "time_seconds_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "voltage_measured_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "current_measured_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "temperature_measured_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "capacity_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 185721
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "voltage_measured_between_0.0_and_5.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 1.7370300333706354,
+                "max_observed": 4.233325435700087
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "current_measured_between_-10.0_and_10.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": -2.029098489464331,
+                "max_observed": 0.0143059566058354
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "temperature_measured_between_0.0_and_100.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 22.35025648802666,
+                "max_observed": 42.33252236723314
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "voltage_load_between_0.0_and_5.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 0.0,
+                "max_observed": 4.249
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "capacity_between_0.0_and_3.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 1.15381833159625,
+                "max_observed": 2.035337591005598
+            }
+        },
+        {
+            "dataset": "NASA Battery Discharge Time-Series",
+            "check": "sample_index_between_0_and_10000",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 0.0,
+                "max_observed": 370.0
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "required_columns",
+            "passed": true,
+            "details": {
+                "missing_columns": [],
+                "required_columns": [
+                    "vehicle_id",
+                    "timestamp",
+                    "speed",
+                    "lead_vehicle_distance",
+                    "relative_speed",
+                    "lane_offset",
+                    "steering_angle",
+                    "brake_pressure",
+                    "object_count",
+                    "pedestrian_count",
+                    "driver_intervention",
+                    "near_collision",
+                    "scenario_type",
+                    "is_risky_event",
+                    "time_gap",
+                    "closing_risk",
+                    "lane_departure_risk",
+                    "hard_brake_risk"
+                ]
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "vehicle_id_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 25000
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "timestamp_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 25000
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "speed_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 25000
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "is_risky_event_not_null",
+            "passed": true,
+            "details": {
+                "null_count": 0,
+                "total_rows": 25000
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "speed_between_0.0_and_150.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 11.625,
+                "max_observed": 95.0
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "lead_vehicle_distance_between_0.0_and_300.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 2.0,
+                "max_observed": 108.29
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "lane_offset_between_0.0_and_5.0",
+            "passed": false,
+            "details": {
+                "invalid_count": 11910,
+                "min_observed": -1.009,
+                "max_observed": 1.499
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "brake_pressure_between_0.0_and_1.0",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 0.0,
+                "max_observed": 1.0
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "object_count_between_0_and_100",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 0.0,
+                "max_observed": 18.0
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "pedestrian_count_between_0_and_50",
+            "passed": true,
+            "details": {
+                "invalid_count": 0,
+                "min_observed": 0.0,
+                "max_observed": 7.0
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "driver_intervention_allowed_values",
+            "passed": true,
+            "details": {
+                "allowed_values": [
+                    0,
+                    1
+                ],
+                "invalid_values": []
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "near_collision_allowed_values",
+            "passed": true,
+            "details": {
+                "allowed_values": [
+                    0,
+                    1
+                ],
+                "invalid_values": []
+            }
+        },
+        {
+            "dataset": "FSD Feature Dataset",
+            "check": "is_risky_event_allowed_values",
+            "passed": true,
+            "details": {
+                "allowed_values": [
+                    0,
+                    1
+                ],
+                "invalid_values": []
+            }
+        }
+    ]
+}
