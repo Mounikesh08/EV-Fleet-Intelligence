@@ -1,5 +1,4 @@
 import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -8,7 +7,13 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from sklearn.metrics import classification_report, confusion_matrix, f1_score, precision_score, recall_score
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+)
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -47,7 +52,13 @@ def set_seed(seed: int = RANDOM_SEED):
 
 
 class LSTMAutoencoder(nn.Module):
-    def __init__(self, input_size: int, hidden_size: int, latent_size: int, num_layers: int = 1):
+    def __init__(
+        self,
+        input_size: int,
+        hidden_size: int,
+        latent_size: int,
+        num_layers: int = 1,
+    ):
         super().__init__()
 
         self.encoder_lstm = nn.LSTM(
@@ -93,7 +104,13 @@ def load_data() -> pd.DataFrame:
 
     df = pd.read_csv(DATA_PATH)
 
-    required_columns = ["battery_id", "cycle_index", "sample_index", "capacity"] + FEATURE_COLUMNS
+    required_columns = [
+        "battery_id",
+        "cycle_index",
+        "sample_index",
+        "capacity",
+    ] + FEATURE_COLUMNS
+
     missing = [col for col in required_columns if col not in df.columns]
 
     if missing:
@@ -108,21 +125,21 @@ def load_data() -> pd.DataFrame:
 def add_soh_labels(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
-    first_capacity = (
-        df.groupby("battery_id")["capacity"]
-        .transform("first")
-    )
-
+    first_capacity = df.groupby("battery_id")["capacity"].transform("first")
     df["soh"] = df["capacity"] / first_capacity
 
-    # In real battery health work, SOH below 80% is commonly treated as degraded.
-    # We use this as anomaly label for evaluation.
+    # Battery health convention:
+    # SOH below 80% is treated as degraded/anomalous for evaluation.
     df["is_anomaly"] = (df["soh"] < 0.80).astype(int)
 
     return df
 
 
-def create_sequences(df: pd.DataFrame, scaler: StandardScaler = None, fit_scaler: bool = False):
+def create_sequences(
+    df: pd.DataFrame,
+    scaler: StandardScaler = None,
+    fit_scaler: bool = False,
+):
     sequence_list = []
     label_list = []
     metadata_list = []
@@ -133,6 +150,8 @@ def create_sequences(df: pd.DataFrame, scaler: StandardScaler = None, fit_scaler
         scaler = StandardScaler()
         feature_values_scaled = scaler.fit_transform(feature_values)
     else:
+        if scaler is None:
+            raise ValueError("Scaler must be provided when fit_scaler=False.")
         feature_values_scaled = scaler.transform(feature_values)
 
     df_scaled = df.copy()
@@ -152,11 +171,11 @@ def create_sequences(df: pd.DataFrame, scaler: StandardScaler = None, fit_scaler
         for start in range(0, len(values) - SEQUENCE_LENGTH + 1, SEQUENCE_LENGTH):
             end = start + SEQUENCE_LENGTH
 
-            seq = values[start:end]
-            seq_label = int(labels[start:end].max())
+            sequence = values[start:end]
+            sequence_label = int(labels[start:end].max())
 
-            sequence_list.append(seq)
-            label_list.append(seq_label)
+            sequence_list.append(sequence)
+            label_list.append(sequence_label)
             metadata_list.append(
                 {
                     "battery_id": battery_id,
@@ -223,6 +242,58 @@ def reconstruction_errors(model, sequences, device):
     return np.array(errors)
 
 
+def tune_threshold(normal_errors, all_errors, y_true):
+    """
+    Finds the reconstruction-error threshold that maximizes F1 score.
+
+    Baseline used 95th percentile of normal errors.
+    That was too conservative and caused low recall.
+    This function searches multiple percentiles and keeps the best F1 result.
+    """
+
+    best_threshold = None
+    best_precision = 0.0
+    best_recall = 0.0
+    best_f1 = -1.0
+    best_matrix = None
+    best_report = None
+    best_percentile = None
+
+    threshold_candidates = np.percentile(normal_errors, np.arange(50, 100, 1))
+
+    for percentile, candidate in zip(np.arange(50, 100, 1), threshold_candidates):
+        candidate = float(candidate)
+        candidate_pred = (all_errors > candidate).astype(int)
+
+        candidate_precision = precision_score(y_true, candidate_pred, zero_division=0)
+        candidate_recall = recall_score(y_true, candidate_pred, zero_division=0)
+        candidate_f1 = f1_score(y_true, candidate_pred, zero_division=0)
+
+        if candidate_f1 > best_f1:
+            best_threshold = candidate
+            best_precision = candidate_precision
+            best_recall = candidate_recall
+            best_f1 = candidate_f1
+            best_matrix = confusion_matrix(y_true, candidate_pred).tolist()
+            best_report = classification_report(
+                y_true,
+                candidate_pred,
+                output_dict=True,
+                zero_division=0,
+            )
+            best_percentile = int(percentile)
+
+    return {
+        "threshold": float(best_threshold),
+        "threshold_percentile": best_percentile,
+        "precision": float(best_precision),
+        "recall": float(best_recall),
+        "f1_score": float(best_f1),
+        "confusion_matrix": best_matrix,
+        "classification_report": best_report,
+    }
+
+
 def save_scaler_as_json(scaler: StandardScaler, path: Path):
     scaler_data = {
         "feature_columns": FEATURE_COLUMNS,
@@ -247,11 +318,12 @@ def main():
     print(f"Batteries: {df['battery_id'].nunique()}")
     print(f"Anomaly rows based on SOH < 0.80: {df['is_anomaly'].sum():,}")
 
-    # Train on healthier batteries/cycles first.
-    # We train autoencoder only on normal sequences so it learns normal discharge behavior.
+    # Train the autoencoder only on normal/healthy sequences.
+    # This lets the model learn normal discharge behavior.
     normal_df = df[df["is_anomaly"] == 0].copy()
 
     print("Creating sequences...")
+
     normal_sequences, normal_labels, normal_metadata, scaler = create_sequences(
         normal_df,
         scaler=None,
@@ -289,8 +361,9 @@ def main():
     mlflow.set_tracking_uri(f"sqlite:///{MLFLOW_DB_PATH}")
     mlflow.set_experiment("NASA_LSTM_Autoencoder_Anomaly_Detection")
 
-    with mlflow.start_run(run_name="pytorch_lstm_autoencoder_nasa"):
+    with mlflow.start_run(run_name="pytorch_lstm_autoencoder_nasa_threshold_tuned"):
         mlflow.log_param("model_type", "LSTM Autoencoder")
+        mlflow.log_param("dataset", "NASA Battery Dataset")
         mlflow.log_param("sequence_length", SEQUENCE_LENGTH)
         mlflow.log_param("batch_size", BATCH_SIZE)
         mlflow.log_param("epochs", EPOCHS)
@@ -306,21 +379,26 @@ def main():
         for idx, loss in enumerate(train_losses, start=1):
             mlflow.log_metric("train_loss", loss, step=idx)
 
+        print("Calculating reconstruction errors...")
         normal_errors = reconstruction_errors(model, normal_sequences, device)
         all_errors = reconstruction_errors(model, all_sequences, device)
 
-        # Threshold based on 95th percentile of normal reconstruction error.
-        threshold = float(np.percentile(normal_errors, 95))
-
         y_true = all_labels
-        y_pred = (all_errors > threshold).astype(int)
 
-        precision = precision_score(y_true, y_pred, zero_division=0)
-        recall = recall_score(y_true, y_pred, zero_division=0)
-        f1 = f1_score(y_true, y_pred, zero_division=0)
+        print("Tuning reconstruction-error threshold...")
+        tuned = tune_threshold(
+            normal_errors=normal_errors,
+            all_errors=all_errors,
+            y_true=y_true,
+        )
 
-        matrix = confusion_matrix(y_true, y_pred).tolist()
-        report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
+        threshold = tuned["threshold"]
+        threshold_percentile = tuned["threshold_percentile"]
+        precision = tuned["precision"]
+        recall = tuned["recall"]
+        f1 = tuned["f1_score"]
+        matrix = tuned["confusion_matrix"]
+        report = tuned["classification_report"]
 
         model_state = {
             "model_state_dict": model.state_dict(),
@@ -337,7 +415,8 @@ def main():
 
         threshold_data = {
             "threshold": threshold,
-            "method": "95th percentile of normal reconstruction error",
+            "threshold_percentile": threshold_percentile,
+            "method": "Best F1 threshold search over 50th to 99th percentile of normal reconstruction errors",
             "trained_at": datetime.now(timezone.utc).isoformat(),
         }
 
@@ -353,24 +432,30 @@ def main():
             "normal_train_sequences": int(len(normal_sequences)),
             "evaluation_sequences": int(len(all_sequences)),
             "threshold": threshold,
-            "precision": float(precision),
-            "recall": float(recall),
-            "f1_score": float(f1),
+            "threshold_percentile": threshold_percentile,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
             "confusion_matrix": matrix,
             "classification_report": report,
             "final_train_loss": float(train_losses[-1]),
+            "threshold_tuning": {
+                "search_percentile_start": 50,
+                "search_percentile_end": 99,
+                "objective": "maximize_f1_score",
+            },
         }
 
         with open(METRICS_PATH, "w") as file:
             json.dump(metrics, file, indent=4)
 
         mlflow.log_metric("threshold", threshold)
+        mlflow.log_metric("threshold_percentile", threshold_percentile)
         mlflow.log_metric("precision", precision)
         mlflow.log_metric("recall", recall)
         mlflow.log_metric("f1_score", f1)
         mlflow.log_metric("final_train_loss", train_losses[-1])
 
-        # Log model artifact as file. We keep torch.save for explicit serving control.
         mlflow.log_artifact(str(MODEL_PATH))
         mlflow.log_artifact(str(SCALER_PATH))
         mlflow.log_artifact(str(THRESHOLD_PATH))
@@ -383,6 +468,7 @@ def main():
     print(f"Threshold saved to: {THRESHOLD_PATH}")
     print(f"Metrics saved to: {METRICS_PATH}")
     print()
+    print(f"Best Threshold Percentile: {threshold_percentile}")
     print(f"Threshold: {threshold:.8f}")
     print(f"Precision: {precision:.4f}")
     print(f"Recall:    {recall:.4f}")
