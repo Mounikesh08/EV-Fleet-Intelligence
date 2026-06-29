@@ -1,0 +1,68 @@
+{
+    "model": "FSD Scenario Risk Classifier",
+    "method": "SHAP TreeExplainer",
+    "sample_size": 1000,
+    "target": "is_risky_event",
+    "top_features": [
+        {
+            "feature": "brake_pressure",
+            "mean_abs_shap": 0.10584276259774517
+        },
+        {
+            "feature": "hard_brake_risk",
+            "mean_abs_shap": 0.09109051805133572
+        },
+        {
+            "feature": "red_light_flag",
+            "mean_abs_shap": 0.08632431537382226
+        },
+        {
+            "feature": "lane_offset",
+            "mean_abs_shap": 0.06698785168348927
+        },
+        {
+            "feature": "lane_departure_risk",
+            "mean_abs_shap": 0.050168063730359945
+        },
+        {
+            "feature": "speed",
+            "mean_abs_shap": 0.02890209402430312
+        },
+        {
+            "feature": "object_count",
+            "mean_abs_shap": 0.023637264778777495
+        },
+        {
+            "feature": "steering_angle",
+            "mean_abs_shap": 0.02273334283223495
+        },
+        {
+            "feature": "lead_vehicle_distance",
+            "mean_abs_shap": 0.01961208274785723
+        },
+        {
+            "feature": "crowded_scene_risk",
+            "mean_abs_shap": 0.016298217495543343
+        },
+        {
+            "feature": "low_visibility_flag",
+            "mean_abs_shap": 0.0151156137772973
+        },
+        {
+            "feature": "time_gap",
+            "mean_abs_shap": 0.01499054285092021
+        },
+        {
+            "feature": "relative_speed",
+            "mean_abs_shap": 0.009914511532504866
+        },
+        {
+            "feature": "closing_risk",
+            "mean_abs_shap": 0.007968415964923063
+        },
+        {
+            "feature": "pedestrian_count",
+            "mean_abs_shap": 0.004436100760932247
+        }
+    ]
+}
