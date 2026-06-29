@@ -39,3 +39,8 @@ Thumbs.db
 # NASA raw/processed local data
 data/nasa_raw/
 data/nasa_processed/
+
+# Phase 2 N-BEATS local artifacts
+models/nbeats_soh_forecaster/
+models/nbeats_soh_metrics.json
+models/nbeats_soh_forecast_predictions.csv
