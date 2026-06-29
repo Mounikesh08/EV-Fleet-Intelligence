@@ -1,12 +1,34 @@
+# Core serving
 fastapi
 uvicorn[standard]
 pydantic
-pandas
-numpy
-scikit-learn
-joblib
 python-dotenv
 requests
 streamlit
 plotly
+
+# Data processing
+pandas
+numpy
+scipy
+scikit-learn
+joblib
+h5py
+mat73
+
+# Experiment tracking
 mlflow
+
+# Deep learning
+torch
+neuralforecast
+
+# Explainability
+shap
+
+# Monitoring / future upgrades
+evidently
+prometheus-fastapi-instrumentator
+
+# Data quality / future upgrades
+great-expectations

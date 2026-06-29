@@ -35,3 +35,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# NASA raw/processed local data
+data/nasa_raw/
+data/nasa_processed/
