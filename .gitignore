@@ -12,16 +12,29 @@ ENV/
 # Environment files
 .env
 
-# Local generated data
+# Local generated synthetic data
 data/*.csv
 
-# Trained model artifacts
+# NASA raw/processed local data
+data/nasa_raw/
+data/nasa_processed/
+
+# Trained model artifacts - local only
 models/*.joblib
 models/*.json
+models/*.pt
+
+# Phase 2 N-BEATS local artifacts
+models/nbeats_soh_forecaster/
+models/nbeats_soh_metrics.json
+models/nbeats_soh_forecast_predictions.csv
 
 # MLflow local tracking
 mlruns/
 mlflow.db
+
+# PyTorch Lightning local logs
+lightning_logs/
 
 # Streamlit local config
 .streamlit/
@@ -35,12 +48,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-# NASA raw/processed local data
-data/nasa_raw/
-data/nasa_processed/
-
-# Phase 2 N-BEATS local artifacts
-models/nbeats_soh_forecaster/
-models/nbeats_soh_metrics.json
-models/nbeats_soh_forecast_predictions.csv
